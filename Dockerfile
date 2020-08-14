@@ -29,7 +29,8 @@ RUN \
 RUN unzip /tmp/go-agent-20.6.0-12005.zip -d /
 RUN mv /go-agent-20.6.0 /go-agent && chown -R ${UID}:0 /go-agent && chmod -R g=u /go-agent
 
-FROM debian:buster
+#FROM debian:buster
+FROM gcr.io/kaniko-project/executor:v0.24.0
 
 LABEL gocd.version="20.6.0" \
   description="GoCD agent based on debian version 10" \
