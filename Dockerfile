@@ -29,8 +29,9 @@ RUN \
 RUN unzip /tmp/go-agent-20.6.0-12005.zip -d /
 RUN mv /go-agent-20.6.0 /go-agent && chown -R ${UID}:0 /go-agent && chmod -R g=u /go-agent
 
-#FROM debian:buster
-FROM gcr.io/kaniko-project/executor:v0.24.0
+FROM gcr.io/kaniko-project/executor:v0.24.0 AS kaniko
+
+FROM debian:buster
 
 LABEL gocd.version="20.6.0" \
   description="GoCD agent based on debian version 10" \
@@ -76,7 +77,22 @@ COPY --chown=go:root agent-bootstrapper-logback-include.xml agent-launcher-logba
 RUN chown -R go:root /docker-entrypoint.d /go /godata /docker-entrypoint.sh \
     && chmod -R g=u /docker-entrypoint.d /go /godata /docker-entrypoint.sh
 
+### Start Kaniko
+COPY --from=kaniko /kaniko /kaniko
+COPY --from=kaniko /workspace /workspace
+COPY --from=kaniko /etc/nsswitch.conf /etc/nsswitch.conf
+
+ARG UID=0
+ARG GID=0
+
+ENV HOME=/root
+ENV USER=root
+ENV PATH="/usr/local/bin:/kaniko:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV SSL_CERT_DIR=/kaniko/ssl/certs
+ENV DOCKER_CONFIG=/kaniko/.docker/
+ENV DOCKER_CREDENTIAL_GCR_CONFIG=/kaniko/.config/gcloud/docker_credential_gcr_config.json
+### End Kaniko
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-USER go
+#USER go
