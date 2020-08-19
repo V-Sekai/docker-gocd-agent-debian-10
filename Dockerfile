@@ -29,7 +29,7 @@ RUN \
 RUN unzip /tmp/go-agent-20.6.0-12005.zip -d /
 RUN mv /go-agent-20.6.0 /go-agent && chown -R ${UID}:0 /go-agent && chmod -R g=u /go-agent
 
-FROM gcr.io/kaniko-project/executor:v0.24.0 AS kaniko
+FROM gcr.io/kaniko-project/executor:v1.0.0 AS kaniko
 
 FROM debian:buster
 
